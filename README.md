@@ -43,9 +43,9 @@ To optimize routing and ensure high availability, **Router-on-a-Stick (802.1Q)**
 
 ---
 
-## 💻 Router Configuration Scripts (Cisco IOS)
+## 💻 Router Configuration Scripts & Verification
 
-```
+```text
 =====================================================================
 1. Headquarters Core Gateway (HQ-Router Configuration)
 =====================================================================
@@ -53,12 +53,10 @@ enable
 configure terminal
 hostname HQ-Router
 
-# Activate the physical Local LAN connection
 interface FastEthernet0/0
  no shutdown
 exit
 
-# 802.1Q Sub-Interfaces Setup
 interface FastEthernet0/0.10
  description HQ_Management_VLAN_10
  encapsulation dot1Q 10
@@ -77,14 +75,12 @@ interface FastEthernet0/0.50
  ip address 192.168.50.1 255.255.255.0
 exit
 
-# Point-to-Point Backbone WAN Link Configuration
 interface FastEthernet1/0
  description WAN_Backbone_To_Branch
  ip address 10.0.0.1 255.255.255.252
  no shutdown
 exit
 
-# Dynamic OSPF Routing Domain Configuration
 router ospf 1
  log-adjacency-changes
  network 192.168.10.0 0.0.0.255 area 0
@@ -102,12 +98,10 @@ enable
 configure terminal
 hostname Branch-Router
 
-# Activate the physical Remote LAN connection
 interface FastEthernet1/0
  no shutdown
 exit
 
-# 802.1Q Sub-Interfaces Setup
 interface FastEthernet1/0.30
  description Branch_Staff_VLAN_30
  encapsulation dot1Q 30
@@ -120,14 +114,12 @@ interface FastEthernet1/0.40
  ip address 192.168.40.1 255.255.255.0
 exit
 
-# Point-to-Point Backbone WAN Link Configuration
 interface FastEthernet0/0
  description WAN_Backbone_To_HQ
  ip address 10.0.0.2 255.255.255.252
  no shutdown
 exit
 
-# Dynamic OSPF Routing Domain Configuration
 router ospf 1
  log-adjacency-changes
  network 192.168.30.0 0.0.0.255 area 0
@@ -136,13 +128,15 @@ router ospf 1
 end
 write memory
 
-
 =====================================================================
 3. Live Routing Tables & Neighbor Adjacency Verification
 =====================================================================
-![OSPF Verification](Screenshots/ospf_verification.png)
 
+Plaintext
 Branch-Router# show ip ospf neighbor
 
 Neighbor ID     Pri   State           Dead Time   Address         Interface
 192.168.50.1      1   FULL/DR         00:00:31    10.0.0.1        FastEthernet0/0
+
+### 📸 Live Routing Tables & Neighbor Adjacency
+![OSPF Verification](Screenshots/ospf_verification.png)
