@@ -45,7 +45,7 @@ To optimize routing and ensure high availability, **Router-on-a-Stick (802.1Q)**
 
 ## 💻 Router Configuration Scripts (Cisco IOS)
 
-```text
+```
 =====================================================================
 1. Headquarters Core Gateway (HQ-Router Configuration)
 =====================================================================
@@ -135,6 +135,7 @@ router ospf 1
  network 10.0.0.0 0.0.0.3 area 0
 end
 write memory
+
 
 =====================================================================
 3. Live Routing Tables & Neighbor Adjacency Verification
