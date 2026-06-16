@@ -128,15 +128,11 @@ router ospf 1
 end
 write memory
 
-=====================================================================
-3. Live Routing Tables & Neighbor Adjacency Verification
-=====================================================================
+## 3. Live Routing Tables & Neighbor Adjacency Verification
 
-Plaintext
-Branch-Router# show ip ospf neighbor
+### OSPF Neighbor Adjacency
+![OSPF Neighbor Output](Screenshots/ospf_verification.png)
 
-Neighbor ID     Pri   State           Dead Time   Address         Interface
-192.168.50.1      1   FULL/DR         00:00:31    10.0.0.1        FastEthernet0/0
+> Branch-Router shows neighbor **192.168.50.1** in **FULL/DR** state via FastEthernet0/0
 
-### 📸 Live Routing Tables & Neighbor Adjacency
-![OSPF Verification](Screenshots/ospf_verification.png)
+
