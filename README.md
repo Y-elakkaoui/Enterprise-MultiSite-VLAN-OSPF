@@ -10,7 +10,7 @@ To optimize routing and ensure high availability, **Router-on-a-Stick (802.1Q)**
 ## 🗺️ Topology Design & IP Schema
 
 ### 📸 Topology Overview
-![Network Topology](topology.png)
+![Network Topology](Screenshots/topology.png)
 
 ### Network Address Allocations
 | Site / Zone | Network Role | VLAN ID | Subnet Mask | Gateway IP | Assigned Node IP |
@@ -27,7 +27,7 @@ To optimize routing and ensure high availability, **Router-on-a-Stick (802.1Q)**
 ## 🛠️ Switch Port Allocation Matrix
 
 ### 📸 Logical Switch Properties
-![Switch Configuration](switch_config.png)
+![Switch Configuration](Screenshots/switch_config.png)
 
 ### 1. Headquarters Switch (`HQ-ASW-01`)
 * **Port e0:** `802.1Q Tagged Trunk Link` $\rightarrow$ Connecting to `HQ-Router (f0/0)`
