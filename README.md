@@ -135,3 +135,18 @@ router ospf 1
  network 10.0.0.0 0.0.0.3 area 0
 end
 write memory
+
+---
+
+## 🔍 Protocol State Verification
+
+### 📸 Live Routing Tables & Neighbor Adjacency
+![OSPF Verification](Screenshots/ospf_verification.png)
+
+To verify that the distributed routers have accurately established dynamic link-state maps across the infrastructure, the routing topology neighbor lookup table was inspected:
+
+```text
+Branch-Router# show ip ospf neighbor
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+192.168.50.1      1   FULL/DR         00:00:31    10.0.0.1        FastEthernet0/0
