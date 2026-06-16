@@ -141,7 +141,7 @@ write memory
 ## 🔍 Protocol State Verification
 
 ### 📸 Live Routing Tables & Neighbor Adjacency
-![OSPF Verification](Screenshots/ospf_verification.png)
+![OSPF Verification]([Screenshots/https://github.com/Y-elakkaoui/Enterprise-MultiSite-VLAN-OSPF/blob/main/Screenshots/ospf_verification.png)
 
 To verify that the distributed routers have accurately established dynamic link-state maps across the infrastructure, the routing topology neighbor lookup table was inspected:
 
