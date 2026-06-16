@@ -136,16 +136,11 @@ router ospf 1
 end
 write memory
 
----
+=====================================================================
+3. Live Routing Tables & Neighbor Adjacency Verification
+=====================================================================
+![OSPF Verification](Screenshots/ospf_verification.png)
 
-## 🔍 Protocol State Verification
-
-### 📸 Live Routing Tables & Neighbor Adjacency
-![OSPF Verification]([Screenshots/https://github.com/Y-elakkaoui/Enterprise-MultiSite-VLAN-OSPF/blob/main/Screenshots/ospf_verification.png)
-
-To verify that the distributed routers have accurately established dynamic link-state maps across the infrastructure, the routing topology neighbor lookup table was inspected:
-
-```text
 Branch-Router# show ip ospf neighbor
 
 Neighbor ID     Pri   State           Dead Time   Address         Interface
