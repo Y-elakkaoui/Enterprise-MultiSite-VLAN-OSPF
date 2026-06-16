@@ -128,6 +128,8 @@ router ospf 1
 end
 write memory
 
+```
+
 ## 3. Live Routing Tables & Neighbor Adjacency Verification
 
 ### OSPF Neighbor Adjacency
