@@ -1,9 +1,9 @@
 # 🏢 Enterprise Multi-Site Network Architecture with VLAN Segmentation & Dynamic OSPF Routing
 
 ## 📝 Project Overview
-This project demonstrates the design and deployment of a secure, scalable multi-site enterprise network infrastructure using **GNS3**. The architecture connects a corporate Headquarters (HQ) containing segregated departmental zones and a secure Data Center (DMZ) to a remote Branch Office (BO) via a high-speed WAN backbone link. 
+This project demonstrates the design and deployment of a multi-site enterprise network using **GNS3**. The architecture connects a Headquarters (HQ) with separate VLANs for departments and servers to a remote Branch Office (BO) via a point-to-point WAN link. 
 
-To optimize routing and ensure high availability, **Router-on-a-Stick (802.1Q)** is utilized for inter-VLAN routing, and **OSPF (Open Shortest Path First)** handles dynamic path determination across the network boundaries.
+**Router-on-a-Stick (802.1Q)** provides inter-VLAN routing, and **OSPF (Open Shortest Path First)** exchanges routes between the two sites. Clients and the server are simulated with VPCS nodes.
 
 ---
 
@@ -17,9 +17,9 @@ To optimize routing and ensure high availability, **Router-on-a-Stick (802.1Q)**
 | :--- | :--- | :---: | :--- | :--- | :--- |
 | **HQ** | Management Clients | `10` | `255.255.255.0` (`/24`) | `192.168.10.1` | `192.168.10.10` (PC1) |
 | **HQ** | Standard Staff / HR | `20` | `255.255.255.0` (`/24`) | `192.168.20.1` | `192.168.20.10` (PC2) |
-| **HQ** | Secure DMZ Server Zone | `50` | `255.255.255.0` (`/24`) | `192.168.50.1` | `192.168.50.10` (Server-DNS) |
+| **HQ** | Server Zone (planned DMZ) | `50` | `255.255.255.0` (`/24`) | `192.168.50.1` | `192.168.50.10` (Server-DNS) |
 | **Branch** | Remote Office Staff | `30` | `255.255.255.0` (`/24`) | `192.168.30.1` | `192.168.30.20` (Branch-PC) |
-| **Branch** | Isolated Guest Network | `40` | `255.255.255.0` (`/24`) | `192.168.40.1` | `192.168.40.10` (Guest-PC) |
+| **Branch** | Guest Network | `40` | `255.255.255.0` (`/24`) | `192.168.40.1` | `192.168.40.10` (Guest-PC) |
 | **WAN Link** | Inter-Router Backbone | *N/A* | `255.255.255.252` (`/30`)| *Point-to-Point* | `10.0.0.1` (HQ) / `10.0.0.2` (BO) |
 
 ---
@@ -33,12 +33,12 @@ To optimize routing and ensure high availability, **Router-on-a-Stick (802.1Q)**
 * **Port e0:** `802.1Q Tagged Trunk Link` $\rightarrow$ Connecting to `HQ-Router (f0/0)`
 * **Port e1:** Access Mode — `VLAN 10` (Management Workstation)
 * **Port e2:** Access Mode — `VLAN 20` (Staff Workstation)
-* **Port e3:** Access Mode — `VLAN 30` (Fallback Management)
-* **Port e4:** Access Mode — `VLAN 50` (DMZ Infrastructure Domain Controller / DNS)
+* **Port e3:** Access Mode — `VLAN 30` (PC3, see Known Limitations)
+* **Port e4:** Access Mode — `VLAN 50` (Server-DNS node)
 
 ### 2. Remote Branch Switch (`BR-ASW-01`)
 * **Port e0:** `802.1Q Tagged Trunk Link` $\rightarrow$ Connecting to `Branch-Router (f1/0)`
-* **Port e1:** Access Mode — `VLAN 40` (Public Guest Wi-Fi Zone)
+* **Port e1:** Access Mode — `VLAN 40` (Guest-PC)
 * **Port e2:** Access Mode — `VLAN 30` (Branch Employee Workstation)
 
 ---
@@ -137,4 +137,17 @@ write memory
 
 > Branch-Router shows neighbor **192.168.50.1** in **FULL/DR** state via FastEthernet0/0
 
+---
 
+## ⚠️ Known Limitations
+
+- **No traffic filtering yet:** the configuration contains no ACLs. All subnets are in OSPF area 0, so the guest network and the server zone can be reached from the other VLANs. The VLANs are separate broadcast domains, but the server zone is not yet a real DMZ and the guest network is not isolated.
+- **No redundancy:** the sites are connected by a single WAN link and a single router on each side.
+- **VLAN 30 at HQ:** port e3 is assigned to VLAN 30, but the HQ router has no VLAN 30 sub-interface, so PC3 has no gateway at HQ.
+- **Verification so far:** the OSPF neighbor state is documented. End-to-end connectivity tests between VLANs are not documented yet.
+
+## ➡️ Next Steps
+
+1. Add ACLs that restrict the guest network and allow only the required traffic to the server zone
+2. Give PC3 a VLAN with a gateway at HQ
+3. Document ping tests between VLANs and sites, with and without the ACLs
