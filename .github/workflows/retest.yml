@@ -1,0 +1,25 @@
+name: Retest routing and ACLs
+
+on:
+  push:
+    branches: [retest]
+    paths-ignore: ['retest/evidence/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  retest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the retest
+        run: bash retest/run.sh
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retest-evidence
+          path: retest/evidence/
