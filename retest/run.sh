@@ -68,11 +68,6 @@ sudo ip link add wan1 type veth peer name wan2
 sudo ip link set wan1 netns r1; sudo ip link set wan2 netns r2
 ns r1 ip addr add 10.0.0.1/30 dev wan1; ns r1 ip link set wan1 up
 ns r2 ip addr add 10.0.0.2/30 dev wan2; ns r2 ip link set wan2 up
-docker restart r1 r2 >/dev/null
-
-# docker restart gives the containers new process IDs, but the namespace is recreated,
-# so re-create the routers' interfaces only if they were lost.
-for r in r1 r2; do sudo ln -sf /proc/$(docker inspect -f '{{.State.Pid}}' $r)/ns/net /var/run/netns/$r; done
 ns r1 ip -br addr > evidence/r1-interfaces.txt
 ns r2 ip -br addr > evidence/r2-interfaces.txt
 
@@ -89,8 +84,9 @@ web() { ns "$1" curl -s -o /dev/null -m 4 "http://192.168.50.10:$2/"; }
 ns srv sh -c 'cd /tmp && nohup python3 -m http.server 53 >/dev/null 2>&1 & cd /tmp && nohup python3 -m http.server 80 >/dev/null 2>&1 &'
 sleep 2
 
+exec > >(tee evidence/results.txt) 2>&1
+echo "== Routing and connectivity, no ACLs yet"
 {
-  echo "== Routing and connectivity, no ACLs yet"
   check "OSPF adjacency reaches Full"           grep -q Full evidence/ospf-neighbor.txt
   check "PC3 reaches its gateway in VLAN 60"    reach pc3 192.168.60.1
   check "PC1 reaches PC2 (inter-VLAN at HQ)"    reach pc1 192.168.20.10
@@ -98,7 +94,7 @@ sleep 2
   check "PC3 reaches Branch-PC (between sites)" reach pc3 192.168.30.20
   check "Without ACLs, Guest-PC reaches PC1"    reach guest 192.168.10.10
   check "Without ACLs, Guest-PC reaches the server on port 80" web guest 80
-} 2>&1 | tee evidence/results.txt
+}
 
 # ACLs: isolate the guest network, and allow only DNS to the server zone
 ns r2 iptables -A FORWARD -i t-r2.40 -d 192.168.0.0/16 -j DROP
@@ -118,8 +114,9 @@ ns r1 iptables -A FORWARD -d 192.168.50.0/24 -j DROP
   check "PC1 still reaches Branch-PC"                reach pc1 192.168.30.20
   check "PC1 reaches the server on the DNS port (TCP 53)" web pc1 53
   check_not "PC1 is blocked from the server on port 80"   web pc1 80
-  finish
-} 2>&1 | tee -a evidence/results.txt
-RC=${PIPESTATUS[0]}
+}
 docker logs r1 > evidence/r1.log 2>&1 || true
+finish
+RC=$?
+sleep 1
 exit "$RC"
