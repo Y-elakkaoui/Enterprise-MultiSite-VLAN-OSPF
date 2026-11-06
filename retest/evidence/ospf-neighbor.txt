@@ -1,0 +1,4 @@
+
+Neighbor ID     Pri State           Up Time         Dead Time Address         Interface                        RXmtL RqstL DBsmL
+192.168.60.1      1 Full/DR         0.548s            34.451s 10.0.0.1        wan2:10.0.0.2                        1     0     0
+

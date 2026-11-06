@@ -1,0 +1,22 @@
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+O   10.0.0.0/30 [110/10] is directly connected, wan2, weight 1, 00:00:46
+O   192.168.30.0/24 [110/10] is directly connected, t-r2.30, weight 1, 00:00:47
+O   192.168.40.0/24 [110/10] is directly connected, t-r2.40, weight 1, 00:00:47
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+O   10.0.0.0/30 [110/10] is directly connected, wan1, weight 1, 00:00:46
+O   192.168.10.0/24 [110/10] is directly connected, t-r1.10, weight 1, 00:00:47
+O   192.168.20.0/24 [110/10] is directly connected, t-r1.20, weight 1, 00:00:47
+O   192.168.50.0/24 [110/10] is directly connected, t-r1.50, weight 1, 00:00:47
+O   192.168.60.0/24 [110/10] is directly connected, t-r1.60, weight 1, 00:00:47

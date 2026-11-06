@@ -1,0 +1,18 @@
+== Routing and connectivity, no ACLs yet
+PASS  OSPF adjacency reaches Full
+PASS  PC3 reaches its gateway in VLAN 60
+PASS  PC1 reaches PC2 (inter-VLAN at HQ)
+PASS  PC1 reaches Branch-PC (between sites)
+PASS  PC3 reaches Branch-PC (between sites)
+PASS  Without ACLs, Guest-PC reaches PC1
+PASS  Without ACLs, Guest-PC reaches the server on port 80
+
+== With ACLs
+PASS  Guest-PC can no longer reach PC1
+PASS  Guest-PC can no longer reach Branch-PC
+PASS  Guest-PC can no longer reach the server
+PASS  PC1 still reaches Branch-PC
+PASS  PC1 reaches the server on the DNS port (TCP 53)
+PASS  PC1 is blocked from the server on port 80
+
+Result: 13 passed, 0 failed

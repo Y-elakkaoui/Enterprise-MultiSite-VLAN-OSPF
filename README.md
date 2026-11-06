@@ -2,9 +2,9 @@
 
 A two-site network built in GNS3: a headquarters and a branch office, connected by a point-to-point WAN link. Router-on-a-stick (802.1Q) provides inter-VLAN routing, and OSPF exchanges routes between the sites. Clients and the server are simulated with VPCS nodes.
 
-> **Status:** VLANs, inter-VLAN routing and OSPF are configured, and the OSPF adjacency reaches the FULL state. There is no traffic filtering yet, and end-to-end connectivity tests are not documented yet. See [Known limitations](#known-limitations).
+> **Status:** VLANs, inter-VLAN routing and OSPF are configured, and the OSPF adjacency reaches the FULL state. The GNS3 configuration has no traffic filtering yet. An automated [concept retest](#concept-retest) with FRRouting verifies connectivity, the PC3 fix and ACL rules. They have not been applied in GNS3 yet. See [Known limitations](#known-limitations).
 
-> **Kurzfassung (DE):** Unternehmensnetz in GNS3 mit Hauptsitz und Filiale: fünf getrennte VLANs, Inter-VLAN-Routing per Router-on-a-Stick, /30-WAN-Strecke und dynamisches Routing mit OSPF. Die OSPF-Nachbarschaft erreicht den Status FULL. Offen sind ACLs zur Filterung des Verkehrs und dokumentierte Verbindungstests.
+> **Kurzfassung (DE):** Unternehmensnetz in GNS3 mit Hauptsitz und Filiale: fünf getrennte VLANs, Inter-VLAN-Routing per Router-on-a-Stick, /30-WAN-Strecke und dynamisches Routing mit OSPF. Die OSPF-Nachbarschaft erreicht den Status FULL. Ein automatisierter Nachtest mit FRRouting bestätigt Verbindungen, die PC3-Korrektur und Filterregeln. In GNS3 auf Cisco-Routern stehen sie noch aus.
 
 ## Topology
 
@@ -134,15 +134,32 @@ write memory
 
 ![OSPF neighbor output](Screenshots/ospf_verification.png)
 
+## Concept retest
+
+An automated retest on GitHub Actions rebuilds the design with the same addressing. **FRRouting, Linux bridges and iptables stand in for the Cisco routers, the switches and ACLs**, so it checks the design, not the IOS configuration above.
+
+Two changes compared with the GNS3 lab: PC3 moves to a new VLAN 60 (192.168.60.0/24) with a gateway on the HQ router, and the guest network and server zone are filtered.
+
+| Check | Result |
+|---|---|
+| OSPF adjacency | Full |
+| PC3 reaches its gateway and Branch-PC | Yes |
+| PC1 reaches PC2 and Branch-PC | Yes |
+| Guest-PC reaches PC1 and the server, without ACLs | Yes |
+| Guest-PC reaches PC1, Branch-PC or the server, with ACLs | No |
+| PC1 reaches the server on TCP 53, with ACLs | Yes |
+| PC1 reaches the server on port 80, with ACLs | No |
+
+All 13 checks passed. See the [results](retest/evidence/results.txt), [evidence](retest/evidence/) and [workflow](.github/workflows/retest.yml). The retest was built and run with AI assistance (Claude).
+
 ## Known limitations
 
 - **No traffic filtering yet:** The configuration contains no ACLs. All subnets are in OSPF area 0, so the guest network and the server zone can be reached from the other VLANs. The VLANs are separate broadcast domains, but the server zone is not yet a real DMZ and the guest network is not isolated.
 - **No redundancy:** The sites are connected by a single WAN link and a single router on each side.
 - **VLAN 30 at HQ:** Port e3 is assigned to VLAN 30, but the HQ router has no VLAN 30 sub-interface, so PC3 has no gateway at HQ.
-- **Verification so far:** The OSPF neighbor state is documented. End-to-end connectivity tests between VLANs are not documented yet.
+- **Verification so far:** In GNS3, the OSPF neighbor state is documented. End-to-end tests exist only in the concept retest.
 
 ## Next steps
 
-1. Add ACLs that restrict the guest network and allow only the required traffic to the server zone
-2. Give PC3 a VLAN with a gateway at HQ
-3. Document ping tests between VLANs and sites, with and without the ACLs
+1. Apply the ACLs and the PC3 fix from the concept retest on the Cisco routers in GNS3
+2. Document ping tests between VLANs and sites there, with and without the ACLs

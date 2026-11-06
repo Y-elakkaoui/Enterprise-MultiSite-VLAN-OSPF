@@ -1,0 +1,8 @@
+-P FORWARD ACCEPT
+-A FORWARD -d 192.168.50.0/24 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -d 192.168.50.0/24 -p tcp -m tcp --dport 53 -j ACCEPT
+-A FORWARD -d 192.168.50.0/24 -p udp -m udp --dport 53 -j ACCEPT
+-A FORWARD -d 192.168.50.0/24 -j DROP
+-P FORWARD ACCEPT
+-A FORWARD -d 192.168.0.0/16 -i t-r2.40 -j DROP
+-A FORWARD -d 10.0.0.0/8 -i t-r2.40 -j DROP
