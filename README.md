@@ -1,54 +1,53 @@
-# 🏢 Enterprise Multi-Site Network Architecture with VLAN Segmentation & Dynamic OSPF Routing
+# Multi-Site Enterprise Network with VLANs and OSPF
 
-## 📝 Project Overview
-This project demonstrates the design and deployment of a multi-site enterprise network using **GNS3**. The architecture connects a Headquarters (HQ) with separate VLANs for departments and servers to a remote Branch Office (BO) via a point-to-point WAN link. 
+A two-site network built in GNS3: a headquarters and a branch office, connected by a point-to-point WAN link. Router-on-a-stick (802.1Q) provides inter-VLAN routing, and OSPF exchanges routes between the sites. Clients and the server are simulated with VPCS nodes.
 
-**Router-on-a-Stick (802.1Q)** provides inter-VLAN routing, and **OSPF (Open Shortest Path First)** exchanges routes between the two sites. Clients and the server are simulated with VPCS nodes.
+> **Status:** VLANs, inter-VLAN routing and OSPF are configured, and the OSPF adjacency reaches the FULL state. There is no traffic filtering yet, and end-to-end connectivity tests are not documented yet. See [Known limitations](#known-limitations).
 
----
+> **Kurzfassung (DE):** Unternehmensnetz in GNS3 mit Hauptsitz und Filiale: fünf getrennte VLANs, Inter-VLAN-Routing per Router-on-a-Stick, /30-WAN-Strecke und dynamisches Routing mit OSPF. Die OSPF-Nachbarschaft erreicht den Status FULL. Offen sind ACLs zur Filterung des Verkehrs und dokumentierte Verbindungstests.
 
-## 🗺️ Topology Design & IP Schema
+## Topology
 
-### 📸 Topology Overview
-![Network Topology](Screenshots/topology.png)
+![Network topology](Screenshots/topology.png)
 
-### Network Address Allocations
-| Site / Zone | Network Role | VLAN ID | Subnet Mask | Gateway IP | Assigned Node IP |
-| :--- | :--- | :---: | :--- | :--- | :--- |
-| **HQ** | Management Clients | `10` | `255.255.255.0` (`/24`) | `192.168.10.1` | `192.168.10.10` (PC1) |
-| **HQ** | Standard Staff / HR | `20` | `255.255.255.0` (`/24`) | `192.168.20.1` | `192.168.20.10` (PC2) |
-| **HQ** | Server Zone (planned DMZ) | `50` | `255.255.255.0` (`/24`) | `192.168.50.1` | `192.168.50.10` (Server-DNS) |
-| **Branch** | Remote Office Staff | `30` | `255.255.255.0` (`/24`) | `192.168.30.1` | `192.168.30.20` (Branch-PC) |
-| **Branch** | Guest Network | `40` | `255.255.255.0` (`/24`) | `192.168.40.1` | `192.168.40.10` (Guest-PC) |
-| **WAN Link** | Inter-Router Backbone | *N/A* | `255.255.255.252` (`/30`)| *Point-to-Point* | `10.0.0.1` (HQ) / `10.0.0.2` (BO) |
+## IP addressing
 
----
+| Site | Network role | VLAN | Subnet | Gateway | Node |
+|---|---|---|---|---|---|
+| HQ | Management clients | 10 | 192.168.10.0/24 | 192.168.10.1 | 192.168.10.10 (PC1) |
+| HQ | Staff / HR | 20 | 192.168.20.0/24 | 192.168.20.1 | 192.168.20.10 (PC2) |
+| HQ | Server zone (planned DMZ) | 50 | 192.168.50.0/24 | 192.168.50.1 | 192.168.50.10 (Server-DNS) |
+| Branch | Remote office staff | 30 | 192.168.30.0/24 | 192.168.30.1 | 192.168.30.20 (Branch-PC) |
+| Branch | Guest network | 40 | 192.168.40.0/24 | 192.168.40.1 | 192.168.40.10 (Guest-PC) |
+| WAN | Inter-router link | n/a | 10.0.0.0/30 | Point-to-point | 10.0.0.1 (HQ), 10.0.0.2 (Branch) |
 
-## 🛠️ Switch Port Allocation Matrix
+## Switch ports
 
-### 📸 Logical Switch Properties
-![Switch Configuration](Screenshots/switch_config.png)
+![Switch configuration](Screenshots/switch_config.png)
 
-### 1. Headquarters Switch (`HQ-ASW-01`)
-* **Port e0:** `802.1Q Tagged Trunk Link` $\rightarrow$ Connecting to `HQ-Router (f0/0)`
-* **Port e1:** Access Mode — `VLAN 10` (Management Workstation)
-* **Port e2:** Access Mode — `VLAN 20` (Staff Workstation)
-* **Port e3:** Access Mode — `VLAN 30` (PC3, see Known Limitations)
-* **Port e4:** Access Mode — `VLAN 50` (Server-DNS node)
+### Headquarters switch (HQ-ASW-01)
 
-### 2. Remote Branch Switch (`BR-ASW-01`)
-* **Port e0:** `802.1Q Tagged Trunk Link` $\rightarrow$ Connecting to `Branch-Router (f1/0)`
-* **Port e1:** Access Mode — `VLAN 40` (Guest-PC)
-* **Port e2:** Access Mode — `VLAN 30` (Branch Employee Workstation)
+| Port | Mode | Connected to |
+|---|---|---|
+| e0 | 802.1Q trunk | HQ-Router (f0/0) |
+| e1 | Access, VLAN 10 | Management workstation |
+| e2 | Access, VLAN 20 | Staff workstation |
+| e3 | Access, VLAN 30 | PC3 (see [Known limitations](#known-limitations)) |
+| e4 | Access, VLAN 50 | Server-DNS node |
 
----
+### Branch switch (BR-ASW-01)
 
-## 💻 Router Configuration Scripts & Verification
+| Port | Mode | Connected to |
+|---|---|---|
+| e0 | 802.1Q trunk | Branch-Router (f1/0) |
+| e1 | Access, VLAN 40 | Guest-PC |
+| e2 | Access, VLAN 30 | Branch employee workstation |
+
+## Router configuration
+
+### HQ-Router
 
 ```text
-=====================================================================
-1. Headquarters Core Gateway (HQ-Router Configuration)
-=====================================================================
 enable
 configure terminal
 hostname HQ-Router
@@ -89,11 +88,11 @@ router ospf 1
  network 10.0.0.0 0.0.0.3 area 0
 end
 write memory
+```
 
+### Branch-Router
 
-=====================================================================
-2. Remote Office Gateway (Branch-Router Configuration)
-=====================================================================
+```text
 enable
 configure terminal
 hostname Branch-Router
@@ -127,26 +126,22 @@ router ospf 1
  network 10.0.0.0 0.0.0.3 area 0
 end
 write memory
-
 ```
 
-## 3. Live Routing Tables & Neighbor Adjacency Verification
+## Verification
 
-### OSPF Neighbor Adjacency
-![OSPF Neighbor Output](Screenshots/ospf_verification.png)
+**OSPF adjacency:** Branch-Router shows neighbor 192.168.50.1 in the FULL/DR state via FastEthernet0/0.
 
-> Branch-Router shows neighbor **192.168.50.1** in **FULL/DR** state via FastEthernet0/0
+![OSPF neighbor output](Screenshots/ospf_verification.png)
 
----
+## Known limitations
 
-## ⚠️ Known Limitations
+- **No traffic filtering yet:** The configuration contains no ACLs. All subnets are in OSPF area 0, so the guest network and the server zone can be reached from the other VLANs. The VLANs are separate broadcast domains, but the server zone is not yet a real DMZ and the guest network is not isolated.
+- **No redundancy:** The sites are connected by a single WAN link and a single router on each side.
+- **VLAN 30 at HQ:** Port e3 is assigned to VLAN 30, but the HQ router has no VLAN 30 sub-interface, so PC3 has no gateway at HQ.
+- **Verification so far:** The OSPF neighbor state is documented. End-to-end connectivity tests between VLANs are not documented yet.
 
-- **No traffic filtering yet:** the configuration contains no ACLs. All subnets are in OSPF area 0, so the guest network and the server zone can be reached from the other VLANs. The VLANs are separate broadcast domains, but the server zone is not yet a real DMZ and the guest network is not isolated.
-- **No redundancy:** the sites are connected by a single WAN link and a single router on each side.
-- **VLAN 30 at HQ:** port e3 is assigned to VLAN 30, but the HQ router has no VLAN 30 sub-interface, so PC3 has no gateway at HQ.
-- **Verification so far:** the OSPF neighbor state is documented. End-to-end connectivity tests between VLANs are not documented yet.
-
-## ➡️ Next Steps
+## Next steps
 
 1. Add ACLs that restrict the guest network and allow only the required traffic to the server zone
 2. Give PC3 a VLAN with a gateway at HQ
